@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Chat Client</title>
+
+	<style>
+		* {
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 18px;
+		}
+
+		#messages {
+			margin-bottom: 20px;
+			padding: 10px;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="messages"></div>
+	<input type="text" id="message-input" />
+	<button onclick="sendMessage()">Send</button>
+
+	<script>
+		const socket = new WebSocket('YOUR_WEBSOCKET_URL');
+		socket.onopen = (event) => {
+			console.log('Connected');
+		}
+
+		socket.onmessage = (event) => {
+			console.log('Message received');
+			console.log(event);
+			const messages = document.getElementById('messages');
+			const messageData = JSON.parse(event.data);
+			messages.innerHTML = messages.innerHTML + `<p><strong>${messageData.connectionId}</strong>: ${messageData.message}</p>`;
+		}
+
+		socket.onerror = (event) => {
+			console.error(event);
+		}
+
+		function sendMessage() {
+			const input = document.getElementById('message-input');
+			const message = input.value.trim();
+			const requestPayload = JSON.stringify({
+				action: 'message',
+				message
+			});
+			if (message) {
+				console.log('Message sent');
+				socket.send(requestPayload);
+			}
+		}
+	</script>
+	
+</body>
+</html>
